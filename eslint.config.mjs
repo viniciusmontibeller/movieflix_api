@@ -18,6 +18,7 @@ export default [
       quotes: ["error", "double", { 'allowTemplateLiterals': true }],
       semi: ["error", "always"],
       indent: ["error", 4],
+      "linebreak-style": ["error", "windows"]
     }
   }
 ];
