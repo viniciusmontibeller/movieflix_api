@@ -132,6 +132,48 @@ app.get("/movies/:genreName", async (req, res) => {
     }
 });
 
+app.put("/genres/:id", async (req, res) => {
+    const id = Number(req.params.id);
+    const { name } = req.body;
+
+    if (!name) {
+        return res.status(400).send({ message: "O nome do gênero é orbigatório" });
+    }
+
+    try {
+        const genre = await prisma.genre.findUnique({ where: { id } });
+        
+        if (!genre) {
+            return res.send(404).send({ message: "Gênero não encontrado" });
+        }
+
+        const existingGenre = await prisma.genre.findFirst({
+            where: {
+                name: {
+                    equals: name,
+                    mode: "insensitive"
+                },
+                id: {
+                    not: id
+                }
+            }
+        });
+
+        if (existingGenre) {
+            return res.status(409).send({ message: "Esse nome de gênero ja existe" });
+        }
+
+        const updatedGnere = await prisma.genre.update({
+            where: { id },
+            data : { name }
+        });
+
+        res.status(200).json(updatedGnere);
+    } catch (error) {
+        res.status(500).send({ message: "Falha ao atualizar o gênero" });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Servidor em execução na porta ${port}`);
 });
